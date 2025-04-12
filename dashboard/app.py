@@ -1,25 +1,26 @@
 import sys
 import os
 
+# -------------------------------
 # Path Setup
+# -------------------------------
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(project_root)
 
-# Imports
-import numpy as np
-import pandas as pd
+from stable_baselines3 import PPO
+from rl_agent.er_env import EREnv
 import streamlit as st
 import plotly.express as px
-from stable_baselines3 import PPO          # <-- FIXED!
-from rl_agent.er_env import EREnv
+import pandas as pd
+import numpy as np
 from scripts.simulation_backend import run_er_simulation
 
 # Path to plots
 plots_dir = os.path.join(current_dir, "..", "plots")
 
 # -------------------------------
-# Dashboard Title & Description
+# Dashboard Title
 # -------------------------------
 st.markdown("<h1 style='text-align: center; color: #2F4F4F;'>🚑 ER Operations Simulation Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("""
@@ -38,20 +39,18 @@ if use_rl:
         "🔮 A pre-trained PPO agent dynamically suggests the optimal number of doctors and nurses "
         "to minimize patient wait times and maximize resource utilization."
     )
-    agent = PPO.load("../rl_agent/trained_agent.zip")   # <-- FIXED: PPO.load
+    agent = PPO.load("../rl_agent/trained_agent.zip")  # <-- FIXED: correct way to load PPO agent
     env = EREnv()
     obs, _ = env.reset()
-    action, _states = agent.predict(obs)
-    num_doctors, num_nurses = action + 1  # ensure no 0 doctors/nurses
+    action, _ = agent.predict(obs)
+    num_doctors, num_nurses = action + 1  # add 1 to avoid 0 doctors/nurses
     st.sidebar.success(f"👨‍⚕️ RL Recommended Doctors: {num_doctors}")
     st.sidebar.success(f"👩‍⚕️ RL Recommended Nurses: {num_nurses}")
-
 else:
     st.sidebar.header("Simulation Parameters (Manual)")
     num_doctors = st.sidebar.slider("Number of Doctors", 1, 10, 3, key="num_doctors_manual")
     num_nurses = st.sidebar.slider("Number of Nurses", 1, 10, 5, key="num_nurses_manual")
 
-# Common parameters
 arrival_rate = st.sidebar.slider("Patient Arrival Rate (patients per hour)", 1, 60, 10, key="arrival_rate_slider")
 sim_duration = st.sidebar.slider("Simulation Duration (minutes)", 60, 480, 240, key="sim_duration_slider")
 
@@ -63,18 +62,18 @@ if st.sidebar.button("Run Simulation", key="run_simulation_button"):
 
         N_RUNS = 10
         all_results = []
-        
+
         for _ in range(N_RUNS):
             result = run_er_simulation(num_doctors, num_nurses, arrival_rate, sim_time=sim_duration)
             all_results.append(result)
 
-        # Average the key metrics
+        # Average key metrics
         avg_wait = np.mean([r['Average Wait Time (min)'] for r in all_results])
         patients_treated = np.mean([r['Total Patients Treated'] for r in all_results])
         doctor_utilization = np.mean([r['Doctor Utilization (%)'] for r in all_results])
         nurse_utilization = np.mean([r['Nurse Utilization (%)'] for r in all_results])
 
-        # Pick wait times and queue lengths from the first run
+        # Pick wait times and queue lengths from the first run (for plotting)
         first_run = all_results[0]
         wait_times = first_run['All Wait Times']
         time_points = first_run['Time Points']
