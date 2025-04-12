@@ -39,7 +39,7 @@ if use_rl:
         "🔮 A pre-trained PPO agent dynamically suggests the optimal number of doctors and nurses "
         "to minimize patient wait times and maximize resource utilization."
     )
-    agent = PPO.load("../rl_agent/trained_agent.zip")  # <-- FIXED: correct way to load PPO agent
+    agent = PPO.load("../rl_agent/trained_agent")  # <-- FIXED: correct way to load PPO agent
     env = EREnv()
     obs, _ = env.reset()
     action, _ = agent.predict(obs)
