@@ -66,31 +66,6 @@ The simulation uses a cleaned version of real-world ER data from Kaggle.
    ```bash
    streamlit run dashboard/app.py
 
----
 
-## Project Structure
-
-ER-Simulation-Analysis-RL/
-│
-├── dashboard/
-│   └── app.py
-│
-├── rl_agent/
-│   ├── er_env.py
-│   ├── trained_agent.zip
-│
-├── scripts/
-│   └── simulation_backend.py
-│
-├── plots/
-│   ├── avg_wait_time_by_hospital.png
-│   ├── avg_wait_time_by_urgency.png
-│   ├── correlation_heatmap.png
-│
-├── data/
-│   └── cleaned_er_data.csv
-│
-├── requirements.txt
-└── README.md
 
 
